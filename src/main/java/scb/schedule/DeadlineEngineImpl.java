@@ -75,6 +75,7 @@ public class DeadlineEngineImpl implements DeadlineEngine {
                 throw new UnsupportedOperationException("Handler processing exception", e);
             }
             processedDeadlines.add(deadlineElem);
+            map.remove(deadlineElem.getId());
         });
         candidateDeadlines.removeAll(processedDeadlines);
         return processedDeadlines.size();
