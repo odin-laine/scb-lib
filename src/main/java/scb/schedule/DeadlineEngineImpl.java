@@ -39,7 +39,6 @@ public class DeadlineEngineImpl implements DeadlineEngine {
 
     @Override
     public long schedule(long deadlineMs) {
-        assert deadlineMs >= 0;
         Deadline deadline = new Deadline(deadlineMs);
         set.add(deadline);
         map.put(Long.valueOf(deadline.getId()), deadline);
@@ -57,6 +56,7 @@ public class DeadlineEngineImpl implements DeadlineEngine {
 
     /**
      * Considering any handler exception as a stopper
+     *
      * @param nowMs   time in millis since epoch to check deadlines against.
      * @param handler to call with identifier of expired deadlines.
      * @param maxPoll count of maximum number of expired deadlines to process.
@@ -68,7 +68,7 @@ public class DeadlineEngineImpl implements DeadlineEngine {
         Deadline boundaryDeadline = new Deadline(nowMs);
         SortedSet<Deadline> candidateDeadlines = set.headSet(boundaryDeadline, true);
         Set<Deadline> processedDeadlines = new HashSet<>();
-        candidateDeadlines.parallelStream().limit(maxPoll).forEach(deadlineElem -> {
+        candidateDeadlines.stream().limit(maxPoll).forEach(deadlineElem -> {
             try {
                 handler.accept(deadlineElem.getId());
             } catch (Exception e) {
