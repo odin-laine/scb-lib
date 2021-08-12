@@ -68,7 +68,7 @@ public class DeadlineEngineImpl implements DeadlineEngine {
         Deadline boundaryDeadline = new Deadline(nowMs);
         SortedSet<Deadline> candidateDeadlines = set.headSet(boundaryDeadline, true);
         Set<Deadline> processedDeadlines = new HashSet<>();
-        candidateDeadlines.parallelStream().limit(maxPoll).forEach(deadlineElem -> {
+        candidateDeadlines.stream().limit(maxPoll).forEach(deadlineElem -> {
             try {
                 handler.accept(deadlineElem.getId());
             } catch (Exception e) {

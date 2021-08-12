@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Date;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 
 public class DeadlineEngineImplTest {
@@ -23,7 +23,8 @@ public class DeadlineEngineImplTest {
         Consumer<Long> consumer = Mockito.mock(Consumer.class);
         Mockito.doThrow(new NullPointerException()).when(consumer).accept(Mockito.anyLong());
         DeadlineEngine deadlineEngine = populateBasic();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> deadlineEngine.poll(4l, consumer, 10));
+        Assertions.assertThrows(UnsupportedOperationException.class, () ->
+            deadlineEngine.poll(4l, consumer, 10));
     }
 
     @Test
@@ -68,8 +69,9 @@ public class DeadlineEngineImplTest {
         Assertions.assertEquals(0, deadlineEngine.size());
 
         deadlineEngine = populateEpoch();
-        Assertions.assertEquals(2, deadlineEngine.poll(Instant.now().minusSeconds(100l).toEpochMilli(), consumer, 10));
-        Assertions.assertEquals(1, deadlineEngine.size());
+        Assertions.assertEquals(1, deadlineEngine.poll(Instant.now().minus(Period.ofDays(1).getDays(),
+            ChronoUnit.DAYS).toEpochMilli(), consumer, 10));
+        Assertions.assertEquals(2, deadlineEngine.size());
     }
 
     @Test
@@ -83,19 +85,16 @@ public class DeadlineEngineImplTest {
 
     private DeadlineEngine populateBasic() {
         DeadlineEngine deadlineEngine = new DeadlineEngineImpl();
+        deadlineEngine.schedule(3l);
         deadlineEngine.schedule(1l);
         deadlineEngine.schedule(2l);
-        deadlineEngine.schedule(3l);
         return deadlineEngine;
     }
 
-    private DeadlineEngine populateEpoch() throws ParseException {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
-        Date date1 = simpleDateFormat.parse("1875/08/12 08:12:30");
-        Date date2 = simpleDateFormat.parse("2021/08/12 08:12:32");
+    private DeadlineEngine populateEpoch() {
         DeadlineEngine deadlineEngine = new DeadlineEngineImpl();
-        deadlineEngine.schedule(date1.getTime());
-        deadlineEngine.schedule(date2.getTime());
+        deadlineEngine.schedule(Instant.now().minus(Period.ofDays(2).getDays(), ChronoUnit.DAYS).toEpochMilli());
+        deadlineEngine.schedule(Instant.now().minus(Period.ofYears(200).getDays(), ChronoUnit.DAYS).toEpochMilli());
         deadlineEngine.schedule(Instant.now().minusMillis(1l).toEpochMilli());
         return deadlineEngine;
     }
