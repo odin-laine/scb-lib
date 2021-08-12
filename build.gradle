@@ -17,7 +17,8 @@ repositories {
     mavenCentral()
 }
 
-version = '1.0.0'
+group = 'scb'
+version = '0.0.1-SNAPSHOT'
 
 sourceCompatibility = 1.11
 targetCompatibility = 1.11
